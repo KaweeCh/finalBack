@@ -1,10 +1,9 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyD7H1jnRT7Ur6bEGLOifJo7TUUjL778RFs",
-  authDomain: "imageuser-project.firebaseapp.com",
-  databaseURL: "https://imageuser-project-default-rtdb.firebaseio.com",
-  projectId: "imageuser-project",
-  storageBucket: "imageuser-project.appspot.com",
-  messagingSenderId: "195296703795",
-  appId: "1:195296703795:web:7766cdad612fc3cf1e3a46",
-  measurementId: "G-FRTGW8SFZB",
+  apiKey: "AIzaSyCgdThXLRjXzPUdz8t3g-a7qEnr7stwXw0",
+  authDomain: "projectviewmash-bac0a.firebaseapp.com",
+  projectId: "projectviewmash-bac0a",
+  storageBucket: "projectviewmash-bac0a.appspot.com",
+  messagingSenderId: "365439332556",
+  appId: "1:365439332556:web:650dfe89132e5fe8961269",
+  measurementId: "G-SP1DX3MQME"
 };
