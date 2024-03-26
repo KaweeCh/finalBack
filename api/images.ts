@@ -126,6 +126,3 @@ router.put("/:id", async (req, res) => {
     res.status(201).json({ affected_row: result.affectedRows });
   });
 });
-
-
-
