@@ -12,16 +12,111 @@ router.get("/", (req, res) => {
 });
 
 let selectedImages :Image[] = [];
+let time: number ;
 
 router.get("/random/:id", (req, res) => {
-  let id = req.params.id;
-  conn.query("SELECT i.userID, i.imageID, i.url, u.username, i.count FROM images i JOIN users u ON i.userID = u.userID ORDER BY RAND() LIMIT 2", (err, result) => {
-    if (err) throw err;
-    const found = selectedImages.find(element => element.userID === result.userID && element.imageID === result.imageID);
-    
-    res.json(result);
-  });
+  let userID = req.params.id;
+  if (!userID) {
+      res.status(400).json({ error: "Missing user_id parameter" });
+      return;
+  }
+
+  if (selectedImages.length === 0) {
+
+      // If no images are selected yet, perform the random selection query
+      const sql = "SELECT i.userID, i.imageID, i.url, u.username, i.count FROM images i JOIN users u ON i.userID = u.userID ORDER BY RAND() LIMIT 2";
+      const sqlTime = "SELECT time FROM time";
+      conn.query(sqlTime, (err, timeResult) => {
+          if (err) {
+              console.error("Error executing time query:", err);
+              res.status(500).json({ error: "Internal server error" });
+              return;
+          }
+          const timeInMilliseconds = timeResult[0].time * 1000;
+         
+          time = timeInMilliseconds;
+      });
+      conn.query(sql, (err, result) => {
+          if (err) {
+              console.error("Error executing query:", err);
+              res.status(500).json({ error: "Internal server error" });
+              return;
+          }
+
+          result.forEach((img: { imageID: any }) => {
+              // Check if the image is already selected
+              const isAlreadySelected = selectedImages.some(item => item.imageID === img.imageID && item.userID === userID);
+              if (!isAlreadySelected) {
+                  selectedImages.push({ imageID: img.imageID, userID: userID });
+                 
+                  // Start the countdown of 10 seconds and remove the imageID from selectedImages
+                  setTimeout(() => {
+                      const index = selectedImages.findIndex(
+                          (item) =>
+                              item.imageID === img.imageID && item.userID === userID
+                      );
+                      if (index !== -1) {
+                          selectedImages.splice(index, 1);
+                          console.log(
+                              `Removed imageID ${img.imageID} from selectedImages for user ${userID}`
+                          );
+                      }
+                  }, time); // 10 seconds
+              }
+          });
+          res.json(result);
+          console.log(selectedImages)
+      });
+  } else {
+    const selectedPictureIDs = selectedImages.filter(item => item.userID === userID).map(item => item.imageID);
+        let sql;
+ 
+
+        if(selectedPictureIDs.length > 0){
+          console.error("more");
+          sql = "SELECT i.userID, i.imageID, i.url, u.username, i.count FROM images i JOIN users u ON i.userID = u.userID WHERE i.imageID NOT IN (?)  ORDER BY RAND() LIMIT 2";
+  
+        } else {
+          sql = "SELECT i.userID, i.imageID, i.url, u.username, i.count FROM images i JOIN users u ON i.userID = u.userID ORDER BY RAND() LIMIT 2";
+        }
+        console.log("selectedPictureIDs Userid  " + userID + " = " + selectedPictureIDs);
+        conn.query(sql, [selectedPictureIDs.map((item) => item)], (err, result) => {
+          
+            if (err) {
+                console.error("Error executing query:", err);
+                res.status(500).json({ error: "Internal server error" });
+                return;
+            }
+         
+            result.forEach((pic: { imageID: any }) => {
+                selectedImages.push({
+                    imageID: pic.imageID,
+                    userID: userID,
+                });
+                // Start a timer to remove imageID from selectedImages after a certain time
+                setTimeout(() => {
+                    const index = selectedImages.findIndex(
+                        (item) =>
+                            item.imageID === pic.imageID && item.userID === userID
+                    );
+                    if (index !== -1) {
+                        selectedImages.splice(index, 1);
+                        console.log(
+                            `Removed imageID ${pic.imageID} from selectedImages for user ${userID}`
+                        );
+                    }
+                },  time); // Time in seconds
+            });
+            // Send the query results back
+            res.json(result);
+            console.log(selectedImages)
+        });
+  }
+
+  
 });
+
+
 
 
 
@@ -152,6 +247,11 @@ interface Image {
   userID: string;
   imageID: string;
 }
+
+
+// สร้างตัวแปรเพื่อเก็บรูปที่ถูกสุ่มไว้
+
+
 
 
 
