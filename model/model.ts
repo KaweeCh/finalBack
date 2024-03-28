@@ -25,3 +25,16 @@ export interface Vote {
   imageID: number;
   elorating: number;
 }
+
+export interface ImageUsers {
+  userID: number;
+  imageID: number;
+  url: string;
+  username: string;
+  count: number;
+}
+
+export interface Image {
+  userID: number;
+  imageID: number;
+}

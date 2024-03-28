@@ -1,7 +1,7 @@
 import express from "express";
 import { conn, queryAsync } from "../dbconnect";
 import mysql from "mysql";
-import { User, imageUpload } from "../model/model";
+import { ImageUsers, User, imageUpload } from "../model/model";
 export const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -10,6 +10,19 @@ router.get("/", (req, res) => {
     res.json(result);
   });
 });
+
+let selectedImages :Image[] = [];
+
+router.get("/random/:id", (req, res) => {
+  let id = req.params.id;
+  conn.query("SELECT i.userID, i.imageID, i.url, u.username, i.count FROM images i JOIN users u ON i.userID = u.userID ORDER BY RAND() LIMIT 2", (err, result) => {
+    if (err) throw err;
+    const found = selectedImages.find(element => element.userID === result.userID && element.imageID === result.imageID);
+    
+    res.json(result);
+  });
+});
+
 
 
 router.get("/count", (req, res) => {
@@ -134,4 +147,17 @@ router.put("/:id", async (req, res) => {
     res.status(201).json({ affected_row: result.affectedRows });
   });
 });
+
+interface Image {
+  userID: string;
+  imageID: string;
+}
+
+
+
+
+
+
+
+
 
