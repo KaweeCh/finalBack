@@ -247,17 +247,3 @@ interface Image {
   userID: string;
   imageID: string;
 }
-
-
-// สร้างตัวแปรเพื่อเก็บรูปที่ถูกสุ่มไว้
-
-
-
-
-
-
-
-
-
-
-

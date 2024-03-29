@@ -87,25 +87,38 @@ router.post("user/upload", (req, res) => {
   // ]);
 });
 
+router.get("/profile/:id", (req, res) => {
+  let id = req.params.id;
+  let sql = "SELECT image FROM users WHERE userID = ?";
+  sql = mysql.format(sql, [id]);
 
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
 
+    if (result.length > 0) {
+      let userImage = result[0].image;
+      res.status(201).json({ image: userImage });
+    } else {
+      res.status(404).json({ message: "User image not found" });
+    }
+  });
+});
 
 router.put("/:id", (req, res) => {
   
   let id = req.params.id;
   let user = req.body;
   console.log(user.oldPassword);
-  let oldPassword = req.body.oldPassword; // รหัสผ่านเก่า
-  let newPassword = user.newPassword; // รหัสผ่านใหม่
-  let newUsername = user.username; // ชื่อผู้ใช้ใหม่
-  let newEmail = user.email; // อีเมล์ใหม่
+  let oldPassword = req.body.oldPassword;
+  let newPassword = user.newPassword;
+  let newUsername = user.username;
+  let newEmail = user.email;
   let sqlSelect = "SELECT * FROM users WHERE userID = ?";
   let sqlUsernameCheck = "SELECT * FROM users WHERE username = ?";
   let sqlUpdate = "UPDATE `users` SET ";
   let values = [];
   let updateValues : any[] = [];
 
-  // เช็คว่ามีการส่งค่ามาหรือไม่และกำหนดค่าที่ต้องอัปเดต
   if (newUsername) {
     sqlUpdate += "`username` = ?, ";
     updateValues.push(newUsername);
